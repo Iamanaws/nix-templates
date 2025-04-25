@@ -42,6 +42,15 @@
             - Run `nix develop`
           '';
         };
+
+        react-native-android = {
+          path = ./react-native-android;
+          description = "Minimal React Native Android Dev Environment";
+          welcomeText = ''
+            # Getting started
+            - Run `nix develop`
+          '';
+        };
       };
 
       defaultTemplate = self.templates.default;
