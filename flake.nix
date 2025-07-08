@@ -11,11 +11,13 @@
         nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (
           system: f { pkgs = import nixpkgs { inherit system; }; }
         );
-    in
-    {
-      formatter = forSystems ({ pkgs }: pkgs.nixfmt-tree);
-      templates = {
 
+      defaultWelcomeText = ''
+        # Getting started
+        - Run `nix develop`
+      '';
+
+      rawTemplates = {
         default = {
           path = ./default;
           description = "Standard flake";
@@ -24,30 +26,28 @@
         php = {
           path = ./php;
           description = "PHP template";
-          welcomeText = ''
-            # Getting started
-            - Run `nix develop`
-          '';
         };
 
         python = {
           path = ./python;
           description = "Python template";
-          welcomeText = ''
-            # Getting started
-            - Run `nix develop`
-          '';
         };
 
         react-native-android = {
           path = ./react-native-android;
           description = "Minimal React Native Android Dev Environment";
-          welcomeText = ''
-            # Getting started
-            - Run `nix develop`
-          '';
         };
       };
+    in
+    {
+      formatter = forSystems ({ pkgs }: pkgs.nixfmt-tree);
+      templates = nixpkgs.lib.mapAttrs (
+        name: value:
+        value
+        // {
+          welcomeText = if (value ? welcomeText) then value.welcomeText else defaultWelcomeText;
+        }
+      ) rawTemplates;
 
       defaultTemplate = self.templates.default;
 
