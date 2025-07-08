@@ -12,44 +12,34 @@
           system: f { pkgs = import nixpkgs { inherit system; }; }
         );
 
-      defaultWelcomeText = ''
-        # Getting started
-        - Run `nix develop`
-      '';
-
       rawTemplates = {
-        default = {
-          path = ./default;
-          description = "Standard flake";
-        };
-
-        php = {
-          path = ./php;
-          description = "PHP template";
-        };
-
-        python = {
-          path = ./python;
-          description = "Python template";
-        };
-
-        react-native-android = {
-          path = ./react-native-android;
-          description = "Minimal React Native Android Dev Environment";
-        };
+        default.path = ./default;
+        php.path = ./php;
+        python.path = ./python;
+        react-native-android.path = ./react-native-android;
       };
     in
     {
       formatter = forSystems ({ pkgs }: pkgs.nixfmt-tree);
       templates = nixpkgs.lib.mapAttrs (
         name: value:
-        value
-        // {
-          welcomeText = if (value ? welcomeText) then value.welcomeText else defaultWelcomeText;
-        }
+        let
+          importedFlake = builtins.tryEval (import (value.path + /flake.nix));
+          flakeDesc = nixpkgs.lib.attrByPath [ "value" "description" ] null importedFlake;
+          baseAttrs = {
+            welcomeText = ''
+              # Getting started
+              - Run `nix develop`
+            '';
+            description = "No description provided";
+          } // value;
+        in
+        baseAttrs
+        // (nixpkgs.lib.optionalAttrs (flakeDesc != null) {
+          description = flakeDesc;
+        })
       ) rawTemplates;
 
       defaultTemplate = self.templates.default;
-
     };
 }
