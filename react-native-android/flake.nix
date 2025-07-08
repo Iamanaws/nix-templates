@@ -2,7 +2,7 @@
   description = "Minimal React Native Android Dev Environment";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     android.url = "github:tadfisher/android-nixpkgs/stable";
   };
 
